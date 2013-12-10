@@ -10,22 +10,6 @@ import (
 func main() {
 	Nx, Ny = 32, 16
 
-	Save("Kx", Kx)
-	Save("Ky", Ky)
-
-	Memset(Sx, 1)
-	Memset(Sy, 1)
-	for ix := range Sy[0] {
-		Sy[0][ix] = 0
-		Sy[len(Sy)-1][ix] = 0
-	}
-	for iy := range Sx {
-		Sx[iy][0] = 0
-		Sx[iy][len(Sx[iy])-1] = 0
-	}
-	Save("sx", Sx)
-	Save("sy", Sy)
-
 	Bx[Ny/2][0] = 1
 	Bx[Ny/2-1][0] = 1
 
