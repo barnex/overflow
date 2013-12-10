@@ -29,12 +29,17 @@ func main() {
 	save("Ky", Ky)
 
 	rho[Ny/2][Nx/2] = 1
-	save("rho", rho)	
+	save("rho", rho)
 
 	updE()
-	save("Ex", Ex)	
-	save("Ey", Ey)	
+	save("Ex", Ex)
+	save("Ey", Ey)
 
+	memset(sx, 1)
+	memset(sy, 1)
+	updj()
+	save("jx", jx)
+	save("jy", jy)
 }
 
 func updRho() {
@@ -48,25 +53,14 @@ func updRho() {
 func updE() {
 
 	// Zero output first
-	for iy := range Ex {
-		for ix := range Ex[iy] {
-			Ex[iy][ix] = 0
-		}
-	}
-
-	for iy := range Ey {
-		for ix := range Ey[iy] {
-			Ey[iy][ix] = 0
-		}
-	}
+	zero(Ex)
+	zero(Ey)
 
 	for sy := range rho {
 		for sx := range rho[sy] {
-
 			if rho[sy][sx] == 0 {
 				continue // skip zero source
 			}
-
 			for y := range Ex {
 				j := wrap(y-sy, KNy)
 				for x := range Ex[y] {
@@ -74,7 +68,6 @@ func updE() {
 					Ex[y][x] += rho[sy][sx] * Kx[j][i]
 				}
 			}
-
 			for y := range Ey {
 				j := wrap(y-sy, KNy)
 				for x := range Ey[y] {
@@ -82,10 +75,21 @@ func updE() {
 					Ey[y][x] += rho[sy][sx] * Ky[j][i]
 				}
 			}
-
 		}
 	}
+}
 
+func updj() {
+	for iy := range jx {
+		for ix := range jx[iy] {
+			jx[iy][ix] = sx[iy][ix] * Ex[iy][ix]
+		}
+	}
+	for iy := range jy {
+		for ix := range jy[iy] {
+			jy[iy][ix] = sy[iy][ix] * Ey[iy][ix]
+		}
+	}
 }
 
 func initK() {
@@ -138,6 +142,18 @@ func arr2d(Nx, Ny int) [][]float64 {
 	assert(len(arr) == Ny)
 	assert(len(arr[0]) == Nx)
 	return arr
+}
+
+func memset(a [][]float64, v float64) {
+	for iy := range a {
+		for ix := range a[iy] {
+			a[iy][ix] = v
+		}
+	}
+}
+
+func zero(a [][]float64) {
+	memset(a, 0)
 }
 
 func wrap(number, max int) int {
