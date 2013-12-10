@@ -31,10 +31,20 @@ func main() {
 	rho[Ny/2][Nx/2] = 1
 	memset(sx, 1)
 	memset(sy, 1)
+	for ix := range sy[0] {
+		sy[0][ix] = 0
+		sy[len(sy)-1][ix] = 0
+	}
+	for iy := range sx {
+		sx[iy][0] = 0
+		sx[iy][len(sx[iy])-1] = 0
+	}
+	save("sx", sx)
+	save("sy", sy)
 
 	dt = 0.5
 
-	for i:=0; i<1000; i++{
+	for i := 0; i < 1000; i++ {
 		save(fmt.Sprintf("%v%06d", "rho", i), rho)
 		save(fmt.Sprintf("%v%06d", "Ex", i), Ex)
 		save(fmt.Sprintf("%v%06d", "Ey", i), Ey)
@@ -45,7 +55,7 @@ func main() {
 
 }
 
-func step(){
+func step() {
 	updE()
 	updj()
 	updRho()
