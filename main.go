@@ -28,7 +28,8 @@ func main() {
 	save("Kx", Kx)
 	save("Ky", Ky)
 
-	rho[Ny/2][Nx/2] = 1
+	//rho[Ny/2][Nx/2] = 1
+
 	memset(sx, 1)
 	memset(sy, 1)
 	for ix := range sy[0] {
@@ -41,6 +42,12 @@ func main() {
 	}
 	save("sx", sx)
 	save("sy", sy)
+
+	Bx[Ny/2][0] = 1
+	Bx[Ny/2-1][0] = 1
+
+	By[0][Nx/2] = -1
+	By[0][Nx/2-1] = -1
 
 	dt = 0.5
 
@@ -101,12 +108,20 @@ func updE() {
 func updj() {
 	for iy := range jx {
 		for ix := range jx[iy] {
-			jx[iy][ix] = sx[iy][ix] * Ex[iy][ix]
+			if Bx[iy][ix] == UNSET{
+				jx[iy][ix] = sx[iy][ix] * Ex[iy][ix]
+			}else{
+				jx[iy][ix] = Bx[iy][ix]
+			}
 		}
 	}
 	for iy := range jy {
 		for ix := range jy[iy] {
-			jy[iy][ix] = sy[iy][ix] * Ey[iy][ix]
+			if By[iy][ix] == UNSET {
+				jy[iy][ix] = sy[iy][ix] * Ey[iy][ix]
+			}else{
+				jy[iy][ix] = By[iy][ix]
+			}
 		}
 	}
 }
@@ -146,7 +161,12 @@ func alloc() {
 	sx, sy = staggered(Nx, Ny)
 	jx, jy = staggered(Nx, Ny)
 	Bx, By = staggered(Nx, Ny)
+
+	memset(Bx, UNSET)
+	memset(By, UNSET)
 }
+
+const UNSET = math.MaxFloat64
 
 func staggered(Nx, Ny int) (x [][]float64, y [][]float64) {
 	return arr2d(Nx+1, Ny), arr2d(Nx, Ny+1)
