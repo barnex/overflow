@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	Nx, Ny = 32, 16
+	Init(32, 16)
 
 	Bx[Ny/2][0] = 1
 	Bx[Ny/2-1][0] = 1
@@ -27,5 +27,4 @@ func main() {
 		}
 		Step()
 	}
-
 }
