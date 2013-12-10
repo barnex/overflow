@@ -57,6 +57,7 @@ func main() {
 		save(fmt.Sprintf("%v%06d", "Ey", i), Ey)
 		save(fmt.Sprintf("%v%06d", "jx", i), jx)
 		save(fmt.Sprintf("%v%06d", "jy", i), jy)
+		save2d(fmt.Sprintf("%v%06d", "j", i), jx, jy)
 		step()
 	}
 
@@ -108,9 +109,9 @@ func updE() {
 func updj() {
 	for iy := range jx {
 		for ix := range jx[iy] {
-			if Bx[iy][ix] == UNSET{
+			if Bx[iy][ix] == UNSET {
 				jx[iy][ix] = sx[iy][ix] * Ex[iy][ix]
-			}else{
+			} else {
 				jx[iy][ix] = Bx[iy][ix]
 			}
 		}
@@ -119,7 +120,7 @@ func updj() {
 		for ix := range jy[iy] {
 			if By[iy][ix] == UNSET {
 				jy[iy][ix] = sy[iy][ix] * Ey[iy][ix]
-			}else{
+			} else {
 				jy[iy][ix] = By[iy][ix]
 			}
 		}
@@ -213,6 +214,24 @@ func save(fname string, a [][]float64) {
 	for iy := range a {
 		for ix := range a[iy] {
 			fmt.Fprint(f, a[iy][ix], " ")
+		}
+		fmt.Fprintln(f)
+	}
+}
+
+func save2d(fname string, ax, ay [][]float64) {
+	f, err := os.OpenFile(fname, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0666)
+	check(err)
+	defer f.Close()
+
+	Nx := len(ay[0]) // not staggered in x
+	Ny := len(ax)    // not staggered in y
+
+	for y := 0; y < Ny; y++ {
+		for x := 0; x < Nx; x++ {
+			valx := 0.5 * (ax[y][x] + ax[y][x+1])
+			valy := 0.5 * (ay[y][x] + ay[y+1][x])
+			fmt.Fprintln(f, x, y, valx, valy)
 		}
 		fmt.Fprintln(f)
 	}
