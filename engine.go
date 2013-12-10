@@ -37,6 +37,33 @@ func Init(nx, ny int) {
 	initK()
 }
 
+// set staggered conductivity (Sx, Sy) from unstaggered matrix
+func SetConductivity(c [][]float64) {
+	for iy := range Sx {
+		for ix := range Sx[iy] {
+			left := getc(c, ix-1, iy)
+			right := getc(c, ix, iy)
+			Sx[iy][ix] = 1 / (1/left + 1/right)
+		}
+	}
+	for iy := range Sy {
+		for ix := range Sy[iy] {
+			bottom := getc(c, ix, iy-1)
+			top := getc(c, ix, iy)
+			Sy[iy][ix] = 1 / (1/bottom + 1/top)
+		}
+	}
+}
+
+// get array element, or 0 for out-of-bounds
+func getc(c [][]float64, ix, iy int) float64 {
+	if ix == -1 || iy == -1 || ix == Nx || iy == Ny{
+		return 0
+	} else {
+		return c[iy][ix]
+	}
+}
+
 func Step() {
 	updRho()
 	updE()
@@ -103,7 +130,7 @@ func updj() {
 
 func initK() {
 	KNx, KNy = 2*Nx, 2*Ny
-	Kx, Ky = arr2d(KNx, KNy), arr2d(KNx, KNy)
+	Kx, Ky = MakeArray(KNx, KNy), MakeArray(KNx, KNy)
 
 	for x := -Nx + 1; x <= Nx; x++ {
 		xw := wrap(x, KNx)
@@ -131,7 +158,7 @@ func initK() {
 }
 
 func alloc() {
-	Rho = arr2d(Nx, Ny)
+	Rho = MakeArray(Nx, Ny)
 	Ex, Ey = staggered(Nx, Ny)
 	Sx, Sy = staggered(Nx, Ny)
 	Jx, Jy = staggered(Nx, Ny)

@@ -1,10 +1,10 @@
 package overflow
 
 func staggered(Nx, Ny int) (x [][]float64, y [][]float64) {
-	return arr2d(Nx+1, Ny), arr2d(Nx, Ny+1)
+	return MakeArray(Nx+1, Ny), MakeArray(Nx, Ny+1)
 }
 
-func arr2d(Nx, Ny int) [][]float64 {
+func MakeArray(Nx, Ny int) [][]float64 {
 	list := make([]float64, Nx*Ny)
 	arr := make([][]float64, Ny)
 	for iy := 0; iy < Ny; iy++ {

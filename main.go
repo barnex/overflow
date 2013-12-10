@@ -10,6 +10,14 @@ import (
 func main() {
 	Init(32, 16)
 
+	s := MakeArray(Nx, Ny)
+	Memset(s, 1)
+	s[Nx/4][Ny/2] = 0
+	s[Nx/4-1][Ny/2] = 0
+	s[Nx/4][Ny/2-1] = 0
+	s[Nx/4-1][Ny/2-1] = 0
+	SetConductivity(s)
+
 	Bx[Ny/2][0] = 1
 	Bx[Ny/2-1][0] = 1
 
