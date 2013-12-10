@@ -29,23 +29,32 @@ func main() {
 	save("Ky", Ky)
 
 	rho[Ny/2][Nx/2] = 1
-	save("rho", rho)
-
-	updE()
-	save("Ex", Ex)
-	save("Ey", Ey)
-
 	memset(sx, 1)
 	memset(sy, 1)
+
+	dt = 0.5
+
+	for i:=0; i<1000; i++{
+		save(fmt.Sprintf("%v%06d", "rho", i), rho)
+		save(fmt.Sprintf("%v%06d", "Ex", i), Ex)
+		save(fmt.Sprintf("%v%06d", "Ey", i), Ey)
+		save(fmt.Sprintf("%v%06d", "jx", i), jx)
+		save(fmt.Sprintf("%v%06d", "jy", i), jy)
+		step()
+	}
+
+}
+
+func step(){
+	updE()
 	updj()
-	save("jx", jx)
-	save("jy", jy)
+	updRho()
 }
 
 func updRho() {
 	for iy := range rho {
 		for ix := range rho[iy] {
-			rho[iy][ix] += dt * (jx[iy][ix] + jx[iy][ix+1] + jy[iy][ix] + jy[iy+1][ix])
+			rho[iy][ix] += (dt / 16) * (jx[iy][ix] - jx[iy][ix+1] + jy[iy][ix] - jy[iy+1][ix])
 		}
 	}
 }
