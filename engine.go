@@ -2,6 +2,7 @@ package overflow
 
 import (
 	"math"
+	"fmt"
 )
 
 var (
@@ -64,6 +65,19 @@ func getc(c [][]float64, ix, iy int) float64 {
 	}
 }
 
+func Solve(tol float64){
+	updj()
+	delta := math.MaxFloat64
+	step := 0
+	for delta > tol{
+		updRho()
+		updE()
+		delta = updj()
+		step++
+		fmt.Println(step, delta)
+	}
+}
+
 func Step() {
 	updRho()
 	updE()
@@ -107,11 +121,15 @@ func updE() {
 	}
 }
 
-func updj() {
+func updj() float64{
+	delta := 0.0
+
 	for iy := range Jx {
 		for ix := range Jx[iy] {
 			if Bx[iy][ix] == UNSET {
-				Jx[iy][ix] = Sx[iy][ix] * Ex[iy][ix]
+				newJ := Sx[iy][ix] * Ex[iy][ix]
+				delta = math.Max(delta, math.Abs(Jx[iy][ix] - newJ))
+				Jx[iy][ix] = newJ
 			} else {
 				Jx[iy][ix] = Bx[iy][ix]
 			}
@@ -120,12 +138,15 @@ func updj() {
 	for iy := range Jy {
 		for ix := range Jy[iy] {
 			if By[iy][ix] == UNSET {
-				Jy[iy][ix] = Sy[iy][ix] * Ey[iy][ix]
+				newJ := Sy[iy][ix] * Ey[iy][ix]
+				delta = math.Max(delta, math.Abs(Jy[iy][ix] - newJ))
+				Jy[iy][ix] = newJ
 			} else {
 				Jy[iy][ix] = By[iy][ix]
 			}
 		}
 	}
+	return delta
 }
 
 func initK() {
