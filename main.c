@@ -30,6 +30,30 @@ matrix newMatrix(int nx, int ny) {
 }
 
 
+void abortBounds(matrix mat, int iy, int ix){
+	fprintf(stderr, "matrix index [%d, %d] out of bounds [%d, %d]\n", iy, ix, mat.ny, mat.nx);
+	fflush(stdout);
+	fflush(stderr);
+	abort();
+}
+
+// checked matrix access
+double *m(matrix mat, int iy, int ix){
+	if (ix<0 || ix>=mat.nx || iy<0 || iy>=mat.ny){
+		abortBounds(mat, ix, iy);
+	}
+	return &mat.arr[ix*mat.ny+iy];
+}
+
+void matrixMemset(matrix mat, double v){
+	for(int iy=0; iy<mat.ny; iy++){
+		for(int ix=0; ix<mat.nx; ix++){
+			*m(mat, iy, ix) = v;
+		}
+	}
+}
+
+
 static int Nx=0, Ny=0; // size
 static matrix Rho;     // charge density
 static matrix Ex, Ey;  // electric field
@@ -53,6 +77,10 @@ int main() {
 	printf("size: %dx%d\n", Nx, Ny);
 
 	alloc();
+
+	// default conductivity: 1 in bulk, 0 at boundaries
+	matrixMemset(Sx, 1);
+	matrixMemset(Sy, 1);
 
 	return 0;
 }
