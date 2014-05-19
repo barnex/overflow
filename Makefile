@@ -1,2 +1,3 @@
 all:
-	gcc -std=c99 -Wall -Werror *.c -o ovf2tool
+	gcc -std=c99 -Wall -Werror -Wextra *.c -o overflow
+	./overflow
