@@ -1,10 +1,11 @@
+#include "libovf2.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 typedef struct {
-	double *arr;
+	float *arr;
 	int nx;
 	int ny;
 } matrix;
@@ -23,8 +24,8 @@ void *emalloc(size_t bytes) {
 }
 
 matrix newMatrix(int nx, int ny) {
-	double *storage;
-	storage = (double*)emalloc(nx*ny*sizeof(storage[0]));
+	float *storage;
+	storage = (float*)emalloc(nx*ny*sizeof(storage[0]));
 	matrix m = {arr:storage, nx:nx, ny:ny};
 	return m;
 }
@@ -37,15 +38,15 @@ void abortBounds(matrix mat, int iy, int ix){
 	abort();
 }
 
-// checked matrix access
-double *m(matrix mat, int iy, int ix){
+// checked matrix access arr[iy][ix]
+float *m(matrix mat, int iy, int ix){
 	if (ix<0 || ix>=mat.nx || iy<0 || iy>=mat.ny){
 		abortBounds(mat, ix, iy);
 	}
-	return &mat.arr[ix*mat.ny+iy];
+	return &mat.arr[iy*mat.nx+ix];
 }
 
-void matrixMemset(matrix mat, double v){
+void matrixMemset(matrix mat, float v){
 	for(int iy=0; iy<mat.ny; iy++){
 		for(int ix=0; ix<mat.nx; ix++){
 			*m(mat, iy, ix) = v;
@@ -53,6 +54,10 @@ void matrixMemset(matrix mat, double v){
 	}
 }
 
+void matrixWrite(const char* fname, matrix mat){
+	ovf2_data d = { valuedim: 1, xnodes: mat.nx, ynodes: mat.ny, znodes: 1, data: mat.arr};
+	ovf2_writefile(fname, d);
+}
 
 static int Nx=0, Ny=0; // size
 static matrix Rho;     // charge density
@@ -81,6 +86,17 @@ int main() {
 	// default conductivity: 1 in bulk, 0 at boundaries
 	matrixMemset(Sx, 1);
 	matrixMemset(Sy, 1);
+	for (int ix=0; ix<Sy.nx; ix++){
+		*m(Sy, 0,       ix) = 0;
+		*m(Sy, Sy.ny-1, ix) = 0;
+	}
+	for (int iy=0; iy<Sx.ny; iy++){
+		*m(Sx, iy,       0) = 0;
+		*m(Sx, iy, Sx.nx-1) = 0;
+	}
+
+	matrixWrite("Sx.ovf", Sx);
+	matrixWrite("Sy.ovf", Sy);
 
 	return 0;
 }
